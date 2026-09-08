@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記録する</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="page-header">
+    <p class="date" id="todayDate">9月8日（火）</p>
+    <p class="sub">今日の仕事を1〜3分で振り返りましょう</p>
+  </header>
+
+  <!-- 昨日までの未回答Tryがあればここに表示される -->
+  <section class="section" id="followupSection" style="display:none;">
+    <p class="section-label">🔄 昨日までのTry</p>
+    <div id="followupList"></div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">Keep</p>
+    <textarea id="keepInput" rows="2" placeholder="今日うまくできたこと"></textarea>
+  </section>
+
+  <section class="section">
+    <p class="section-label">Problem</p>
+    <div id="problemList"></div>
+    <button class="add-link" id="addProblemBtn" type="button">＋ Problemを追加</button>
+  </section>
+
+  <section class="section">
+    <p class="section-label">Try</p>
+    <textarea id="tryInput" rows="2" placeholder="次にやる具体的な行動"></textarea>
+    <div class="relate-row" id="tryRelateRow" style="display:none;">
+      関連Problem：
+      <select id="tryRelateSelect"></select>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">FB</p>
+    <textarea id="fbInput" rows="2" placeholder="受けたフィードバック"></textarea>
+    <div class="relate-row" id="fbRelateRow" style="display:none;">
+      関連Problem：
+      <select id="fbRelateSelect"></select>
+    </div>
+  </section>
+
+  <div class="save-bar">
+    <button class="save-btn" id="saveBtn">保存する</button>
+  </div>
+
+  <div class="toast" id="toast">保存しました</div>
+
+  <!-- Theme確認モーダル(AI連携後に使用) -->
+  <div class="modal-overlay" id="themeModal">
+    <div class="modal-box">
+      <h3>🤖 AIからの提案</h3>
+      <p id="themeModalText"></p>
+      <div class="choice-group" style="margin-top:16px;">
+        <button class="choice-btn" id="themeSameBtn">同じProblemにする</button>
+        <button class="choice-btn" id="themeDiffBtn">別のProblemにする</button>
+      </div>
+      <button class="add-link" id="themeLaterBtn" style="margin-top:8px;">あとで決める →</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

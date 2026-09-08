@@ -1,0 +1,256 @@
+/* ============================================
+   トークン（色・文字の基本設定）
+   ============================================ */
+:root {
+  --bg: #F5F4EF;           /* 紙のような背景色 */
+  --ink: #262622;          /* 本文の文字色 */
+  --ink-soft: #6B6A63;     /* 補足文字色 */
+  --line: #D9D7CC;         /* 区切り線 */
+  --moss: #3F5D4E;         /* メインアクセント(成長・落ち着き) */
+  --moss-soft: #E5EAE4;    /* moss の薄い背景 */
+  --rust: #8B5E4D;         /* Problem用アクセント */
+  --rust-soft: #F0E6E1;    /* rust の薄い背景 */
+  --gold: #A8842C;         /* 達成・克服用アクセント */
+
+  --font-serif: "Lora", serif;
+  --font-sans: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+/* ============================================
+   ヘッダー
+   ============================================ */
+.page-header {
+  padding: 28px 20px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-header .date {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.page-header .sub {
+  color: var(--ink-soft);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ============================================
+   セクション共通
+   ============================================ */
+.section {
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-label {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+textarea, select, input[type="text"] {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+textarea:focus, select:focus, input:focus {
+  outline: none;
+  border-color: var(--moss);
+}
+
+/* ============================================
+   Problemブロック(複数追加できる)
+   ============================================ */
+.problem-block {
+  border-left: 3px solid var(--rust);
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+
+.problem-block .theme-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.add-link {
+  background: none;
+  border: none;
+  color: var(--moss);
+  font-size: 14px;
+  padding: 8px 0;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+/* ============================================
+   関連Problem選択(Try/FB用)
+   ============================================ */
+.relate-row {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.relate-row select {
+  margin-top: 4px;
+}
+
+/* ============================================
+   Tryの振り返りカード
+   ============================================ */
+.followup-card {
+  background: var(--moss-soft);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.followup-card .try-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.choice-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.choice-btn {
+  border: 1px solid var(--moss);
+  background: #fff;
+  color: var(--moss);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.choice-btn.selected {
+  background: var(--moss);
+  color: #fff;
+}
+
+.result-choices {
+  margin-top: 10px;
+  display: none;
+}
+
+.result-choices.visible {
+  display: block;
+}
+
+/* ============================================
+   保存ボタン
+   ============================================ */
+.save-bar {
+  padding: 20px;
+}
+
+.save-btn {
+  width: 100%;
+  background: var(--moss);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 16px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-btn:disabled {
+  background: var(--ink-soft);
+}
+
+/* ============================================
+   トースト通知(保存しましたの表示)
+   ============================================ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================
+   モーダル(Theme確認用の土台。今はまだ使わない)
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(38, 38, 34, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-box h3 {
+  font-family: var(--font-serif);
+  margin: 0 0 12px;
+}
