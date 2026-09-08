@@ -392,7 +392,7 @@ async function runAiAnalysis(payload) {
 
     if (!res.ok) {
       console.error("AI分析エラー:", result.error);
-      // AI分析が失敗しても、記録そのものは既に保存済みなので致命的エラーにはしない
+      showAiError(result.error || "AI分析でエラーが発生しました");
       return;
     }
 
@@ -445,8 +445,15 @@ async function runAiAnalysis(payload) {
     }
   } catch (err) {
     console.error("AI分析の呼び出しに失敗:", err);
-    // ここも記録の保存自体は成功しているので、静かに諦める
+    showAiError("AI分析の呼び出しに失敗しました: " + err.message);
   }
+}
+
+// AI分析のエラーを、結果表示欄に代わりに表示する
+function showAiError(message) {
+  document.getElementById("aiResultSection").style.display = "block";
+  document.getElementById("aiDailyAnalysisText").textContent = "⚠️ " + message;
+  document.getElementById("aiFocusText").textContent = "";
 }
 
 
