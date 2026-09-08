@@ -281,19 +281,25 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       await run(sb.from("keeps").insert({ date: todayStr, content: keepText }), "keeps");
     }
 
-    // 3. Problem(複数)
+    // 3. Problem(複数)。あとでAIに送るため、保存したid付きで結果を受け取る
     const problemBlocks = [...document.querySelectorAll(".problem-block")];
+    const problemRowsToInsert = [];
     for (const block of problemBlocks) {
       const text = block.querySelector(".problem-text").value.trim();
       if (!text) continue;
       const themeId = block.querySelector(".problem-theme-select").value || null;
-      await run(
-        sb.from("problem_instances").insert({
-          date: todayStr,
-          raw_text: text,
-          problem_theme_id: themeId,
-          theme_confirm_status: themeId ? "確定" : "未提案",
-        }),
+      problemRowsToInsert.push({
+        date: todayStr,
+        raw_text: text,
+        problem_theme_id: themeId,
+        theme_confirm_status: themeId ? "確定" : "未提案",
+      });
+    }
+
+    let insertedProblems = [];
+    if (problemRowsToInsert.length > 0) {
+      insertedProblems = await run(
+        sb.from("problem_instances").insert(problemRowsToInsert).select(),
         "problem_instances"
       );
     }
@@ -348,6 +354,18 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     }
 
     showToast("保存しました");
+
+    // 7. AI分析(Keep/Problem/Try/FBのいずれかがある場合のみ実行)
+    if (keepText || insertedProblems.length > 0 || tryText || fbText) {
+      await runAiAnalysis({
+        date: todayStr,
+        keep: keepText,
+        problems: insertedProblems.map((p) => ({ id: p.id, text: p.raw_text })),
+        tryText,
+        fbText,
+      });
+    }
+
     resetForm();
   } catch (err) {
     console.error(err);
@@ -357,6 +375,194 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     saveBtn.textContent = "保存する";
   }
 });
+
+
+// ============================================
+// AI分析の呼び出しと、結果の反映
+// ============================================
+async function runAiAnalysis(payload) {
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, activeThemes }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      console.error("AI分析エラー:", result.error);
+      // AI分析が失敗しても、記録そのものは既に保存済みなので致命的エラーにはしない
+      return;
+    }
+
+    // Problemごとの分類結果を反映
+    const themeConfirmQueue = [];
+
+    for (const item of result.problemClassifications || []) {
+      const updateData = {
+        category: item.category || null,
+        importance: item.importance || null,
+        ai_suggested_theme_id: item.similarThemeId || null,
+        ai_confidence: item.similarThemeConfidence || null,
+      };
+
+      // 確信度に応じてステータスを更新
+      if (item.similarThemeId && item.similarThemeConfidence === "中") {
+        updateData.theme_confirm_status = "候補";
+      }
+
+      await sb.from("problem_instances").update(updateData).eq("id", item.id);
+
+      // 高確信のものは、ユーザーに確認してもらうキューに入れる
+      if (item.similarThemeConfidence === "高") {
+        themeConfirmQueue.push(item);
+      } else if (!item.similarThemeId && item.newThemeNameSuggestion) {
+        // 似たテーマは無いが、新テーマ候補がある場合も確認キューへ
+        themeConfirmQueue.push(item);
+      }
+    }
+
+    // 日次分析結果を保存して画面に表示
+    if (result.dailyAnalysis) {
+      await sb.from("ai_analysis_history").insert({
+        date: payload.date,
+        type: "daily",
+        summary_text: result.dailyAnalysis,
+        focus_of_the_day: result.focusOfTheDaySuggestion || null,
+      });
+
+      document.getElementById("aiResultSection").style.display = "block";
+      document.getElementById("aiDailyAnalysisText").textContent = result.dailyAnalysis;
+      document.getElementById("aiFocusText").textContent =
+        result.focusOfTheDaySuggestion || "(今回は特になし)";
+    }
+
+    // Theme確認が必要なものがあれば、1件ずつモーダルで確認する
+    if (themeConfirmQueue.length > 0) {
+      await loadActiveThemes(); // 新しいテーマ判定のために最新化
+      processThemeConfirmQueue(themeConfirmQueue);
+    }
+  } catch (err) {
+    console.error("AI分析の呼び出しに失敗:", err);
+    // ここも記録の保存自体は成功しているので、静かに諦める
+  }
+}
+
+
+// ============================================
+// Theme確認モーダルを、キューの内容で1件ずつ表示する
+// ============================================
+function processThemeConfirmQueue(queue) {
+  if (queue.length === 0) return;
+  const item = queue[0];
+  const remaining = queue.slice(1);
+
+  const existingTheme = activeThemes.find((t) => t.id === item.similarThemeId);
+  const modal = document.getElementById("themeModal");
+  const textEl = document.getElementById("themeModalText");
+
+  if (existingTheme) {
+    textEl.textContent = `このProblemは過去の「${existingTheme.name}」と同じテーマの可能性があります。`;
+  } else {
+    textEl.textContent = `このProblemは新しいテーマ「${item.newThemeNameSuggestion}」として記録できそうです。`;
+  }
+
+  modal.classList.add("visible");
+
+  const sameBtn = document.getElementById("themeSameBtn");
+  const diffBtn = document.getElementById("themeDiffBtn");
+  const laterBtn = document.getElementById("themeLaterBtn");
+
+  // 前回分のイベントが残らないよう、ボタンを複製して差し替える
+  const newSameBtn = sameBtn.cloneNode(true);
+  const newDiffBtn = diffBtn.cloneNode(true);
+  const newLaterBtn = laterBtn.cloneNode(true);
+  sameBtn.replaceWith(newSameBtn);
+  diffBtn.replaceWith(newDiffBtn);
+  laterBtn.replaceWith(newLaterBtn);
+
+  function closeAndNext() {
+    modal.classList.remove("visible");
+    processThemeConfirmQueue(remaining);
+  }
+
+  newSameBtn.textContent = existingTheme ? "同じProblemにする" : "この名前で新規作成する";
+  newSameBtn.addEventListener("click", async () => {
+    if (existingTheme) {
+      await linkProblemToExistingTheme(item.id, existingTheme.id);
+    } else {
+      await linkProblemToNewTheme(item.id, item.newThemeNameSuggestion, item.category, item.importance);
+    }
+    closeAndNext();
+  });
+
+  newDiffBtn.textContent = "別のProblemにする";
+  newDiffBtn.addEventListener("click", async () => {
+    if (existingTheme) {
+      // 既存テーマとは別、ということなので新規テーマとして作成する
+      const name = window.prompt("新しいテーマの名前を入力してください", item.newThemeNameSuggestion || "");
+      if (name) {
+        await linkProblemToNewTheme(item.id, name, item.category, item.importance);
+      }
+    }
+    closeAndNext();
+  });
+
+  newLaterBtn.addEventListener("click", () => {
+    closeAndNext();
+  });
+}
+
+// 既存テーマにProblemを紐付け、発生回数などを更新する
+async function linkProblemToExistingTheme(problemId, themeId) {
+  const { data: theme } = await sb
+    .from("problem_themes")
+    .select("occurrence_count, first_occurrence")
+    .eq("id", themeId)
+    .single();
+
+  await sb
+    .from("problem_themes")
+    .update({
+      occurrence_count: (theme?.occurrence_count || 0) + 1,
+      last_occurrence: todayStr,
+      first_occurrence: theme?.first_occurrence || todayStr,
+    })
+    .eq("id", themeId);
+
+  await sb
+    .from("problem_instances")
+    .update({ problem_theme_id: themeId, theme_confirm_status: "確定" })
+    .eq("id", problemId);
+}
+
+// 新しいテーマを作り、Problemを紐付ける
+async function linkProblemToNewTheme(problemId, name, category, importance) {
+  const { data: newTheme, error } = await sb
+    .from("problem_themes")
+    .insert({
+      name: name,
+      category: category || null,
+      importance: importance || "中",
+      status: "未対応",
+      occurrence_count: 1,
+      first_occurrence: todayStr,
+      last_occurrence: todayStr,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("新規テーマ作成エラー:", error);
+    return;
+  }
+
+  await sb
+    .from("problem_instances")
+    .update({ problem_theme_id: newTheme.id, theme_confirm_status: "確定" })
+    .eq("id", problemId);
+}
 
 
 // ============================================
