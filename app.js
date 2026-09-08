@@ -258,14 +258,27 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   saveBtn.disabled = true;
   saveBtn.textContent = "保存中...";
 
+  // Supabaseへの命令ごとにエラーが無いか確認するための小さな関数
+  // (エラーがあれば、内容を持ったまま止める)
+  async function run(promise, label) {
+    const { data, error } = await promise;
+    if (error) {
+      throw new Error(`[${label}] ${error.message}`);
+    }
+    return data;
+  }
+
   try {
     // 1. その日の器(daily_records)を用意
-    await sb.from("daily_records").upsert({ date: todayStr }, { onConflict: "date" });
+    await run(
+      sb.from("daily_records").upsert({ date: todayStr }, { onConflict: "date" }),
+      "daily_records"
+    );
 
     // 2. Keep
     const keepText = document.getElementById("keepInput").value.trim();
     if (keepText) {
-      await sb.from("keeps").insert({ date: todayStr, content: keepText });
+      await run(sb.from("keeps").insert({ date: todayStr, content: keepText }), "keeps");
     }
 
     // 3. Problem(複数)
@@ -274,12 +287,15 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       const text = block.querySelector(".problem-text").value.trim();
       if (!text) continue;
       const themeId = block.querySelector(".problem-theme-select").value || null;
-      await sb.from("problem_instances").insert({
-        date: todayStr,
-        raw_text: text,
-        problem_theme_id: themeId,
-        theme_confirm_status: themeId ? "確定" : "未提案",
-      });
+      await run(
+        sb.from("problem_instances").insert({
+          date: todayStr,
+          raw_text: text,
+          problem_theme_id: themeId,
+          theme_confirm_status: themeId ? "確定" : "未提案",
+        }),
+        "problem_instances"
+      );
     }
 
     // 4. Try
@@ -287,12 +303,15 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     if (tryText) {
       const trySelect = document.getElementById("tryRelateSelect");
       const relatedThemeId = trySelect.dataset.autoValue || trySelect.value || null;
-      await sb.from("trys").insert({
-        date: todayStr,
-        action: tryText,
-        related_problem_theme_id: relatedThemeId,
-        execution_status: "未回答",
-      });
+      await run(
+        sb.from("trys").insert({
+          date: todayStr,
+          action: tryText,
+          related_problem_theme_id: relatedThemeId,
+          execution_status: "未回答",
+        }),
+        "trys"
+      );
     }
 
     // 5. FB
@@ -300,11 +319,14 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     if (fbText) {
       const fbSelect = document.getElementById("fbRelateSelect");
       const relatedThemeId = fbSelect.dataset.autoValue || fbSelect.value || null;
-      await sb.from("feedbacks").insert({
-        date: todayStr,
-        content: fbText,
-        related_problem_theme_id: relatedThemeId,
-      });
+      await run(
+        sb.from("feedbacks").insert({
+          date: todayStr,
+          content: fbText,
+          related_problem_theme_id: relatedThemeId,
+        }),
+        "feedbacks"
+      );
     }
 
     // 6. 昨日までのTryへの回答を反映
@@ -312,21 +334,24 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       const ans = followupAnswers[tryId];
       if (!ans.executed) continue; // 回答していないものはそのまま(未回答)にしておく
 
-      await sb
-        .from("trys")
-        .update({
-          execution_status: ans.executed,
-          result_category: ans.result,
-          answered_at: new Date().toISOString(),
-        })
-        .eq("id", tryId);
+      await run(
+        sb
+          .from("trys")
+          .update({
+            execution_status: ans.executed,
+            result_category: ans.result,
+            answered_at: new Date().toISOString(),
+          })
+          .eq("id", tryId),
+        "trys(更新)"
+      );
     }
 
     showToast("保存しました");
     resetForm();
   } catch (err) {
     console.error(err);
-    alert("保存中にエラーが発生しました。通信状況を確認してもう一度お試しください。");
+    alert("保存中にエラーが発生しました:\n\n" + err.message);
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = "保存する";
