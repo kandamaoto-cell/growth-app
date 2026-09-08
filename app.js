@@ -1,7 +1,34 @@
 // ============================================
+// エラーを画面に直接表示する仕組み
+// (スマホだけで開発する場合、開発者ツールが使えないため、
+//  何が起きたかを画面上で確認できるようにしておく)
+// ============================================
+function showFatalError(message) {
+  const banner = document.createElement("div");
+  banner.style.cssText =
+    "background:#8B5E4D;color:#fff;padding:14px 20px;font-size:13px;line-height:1.6;";
+  banner.textContent = "⚠️ " + message;
+  document.body.prepend(banner);
+}
+
+// ============================================
 // 初期設定
 // ============================================
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sb = null;
+try {
+  if (typeof window.supabase === "undefined") {
+    throw new Error(
+      "Supabaseライブラリが読み込めていません(CDNの読み込み失敗の可能性)"
+    );
+  }
+  if (SUPABASE_URL.includes("ここに") || SUPABASE_ANON_KEY.includes("ここに")) {
+    throw new Error("supabase-config.jsの値がまだ書き換えられていません");
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) {
+  console.error(err);
+  showFatalError(err.message);
+}
 
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10); // 例: "2026-09-08"
@@ -35,7 +62,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 // アクティブなThemeを読み込む(関連Problem選択用)
 // ============================================
 async function loadActiveThemes() {
-  const { data, error } = await supabase
+  if (!sb) return;
+  const { data, error } = await sb
     .from("problem_themes")
     .select("id, name")
     .neq("status", "克服")
@@ -148,7 +176,8 @@ function updateRelateVisibility() {
 // 昨日までの未回答Tryを読み込む(最大2件)
 // ============================================
 async function loadFollowupTrys() {
-  const { data, error } = await supabase
+  if (!sb) return;
+  const { data, error } = await sb
     .from("trys")
     .select("id, action")
     .eq("execution_status", "未回答")
@@ -220,17 +249,23 @@ async function loadFollowupTrys() {
 // ============================================
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const saveBtn = document.getElementById("saveBtn");
+
+  if (!sb) {
+    alert("データベースに接続できていないため保存できません。画面上部のエラー内容を確認してください。");
+    return;
+  }
+
   saveBtn.disabled = true;
   saveBtn.textContent = "保存中...";
 
   try {
     // 1. その日の器(daily_records)を用意
-    await supabase.from("daily_records").upsert({ date: todayStr }, { onConflict: "date" });
+    await sb.from("daily_records").upsert({ date: todayStr }, { onConflict: "date" });
 
     // 2. Keep
     const keepText = document.getElementById("keepInput").value.trim();
     if (keepText) {
-      await supabase.from("keeps").insert({ date: todayStr, content: keepText });
+      await sb.from("keeps").insert({ date: todayStr, content: keepText });
     }
 
     // 3. Problem(複数)
@@ -239,7 +274,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       const text = block.querySelector(".problem-text").value.trim();
       if (!text) continue;
       const themeId = block.querySelector(".problem-theme-select").value || null;
-      await supabase.from("problem_instances").insert({
+      await sb.from("problem_instances").insert({
         date: todayStr,
         raw_text: text,
         problem_theme_id: themeId,
@@ -252,7 +287,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     if (tryText) {
       const trySelect = document.getElementById("tryRelateSelect");
       const relatedThemeId = trySelect.dataset.autoValue || trySelect.value || null;
-      await supabase.from("trys").insert({
+      await sb.from("trys").insert({
         date: todayStr,
         action: tryText,
         related_problem_theme_id: relatedThemeId,
@@ -265,7 +300,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     if (fbText) {
       const fbSelect = document.getElementById("fbRelateSelect");
       const relatedThemeId = fbSelect.dataset.autoValue || fbSelect.value || null;
-      await supabase.from("feedbacks").insert({
+      await sb.from("feedbacks").insert({
         date: todayStr,
         content: fbText,
         related_problem_theme_id: relatedThemeId,
@@ -277,7 +312,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
       const ans = followupAnswers[tryId];
       if (!ans.executed) continue; // 回答していないものはそのまま(未回答)にしておく
 
-      await supabase
+      await sb
         .from("trys")
         .update({
           execution_status: ans.executed,
