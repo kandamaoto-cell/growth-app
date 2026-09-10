@@ -226,8 +226,135 @@ textarea:focus, select:focus, input:focus {
 }
 
 /* ============================================
-   モーダル(Theme確認用の土台。今はまだ使わない)
+   下部ナビゲーション
    ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  padding: 8px 0 20px;
+}
+
+.bottom-nav a {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: 11px;
+  padding-top: 4px;
+}
+
+.bottom-nav a .icon {
+  font-size: 20px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.bottom-nav a.active {
+  color: var(--moss);
+  font-weight: 600;
+}
+
+.bottom-nav a.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+body.has-bottom-nav {
+  padding-bottom: 88px;
+}
+
+/* ============================================
+   Home画面: フォーカスカード
+   ============================================ */
+.focus-card {
+  background: var(--moss);
+  color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px;
+}
+
+.focus-card .focus-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 0 0 8px;
+}
+
+.focus-card .focus-text {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.focus-card.empty {
+  background: var(--moss-soft);
+  color: var(--ink-soft);
+}
+
+.focus-card.empty .focus-text {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* ============================================
+   Home画面: Problemカード類
+   ============================================ */
+.home-problem-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.home-problem-card:last-child {
+  border-bottom: none;
+}
+
+.home-problem-card .name {
+  font-size: 14px;
+}
+
+.home-problem-card .meta {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.badge.high { background: var(--rust-soft); color: var(--rust); }
+.badge.mid { background: var(--moss-soft); color: var(--moss); }
+.badge.low { background: #EFEFEF; color: var(--ink-soft); }
+
+.empty-note {
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 8px 0;
+}
+
+.try-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 6px 0;
+}
 .modal-overlay {
   position: fixed;
   inset: 0;

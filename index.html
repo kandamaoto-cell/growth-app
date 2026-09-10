@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="has-bottom-nav">
 
   <header class="page-header">
     <p class="date" id="todayDate">9月8日（火）</p>
@@ -79,5 +79,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
+
+  <!-- 下部ナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="home.html"><span class="icon">🏠</span>Home</a>
+    <a href="index.html" class="active"><span class="icon">📝</span>Record</a>
+    <a href="#" class="disabled"><span class="icon">🔴</span>Problem</a>
+    <a href="#" class="disabled"><span class="icon">📈</span>Growth</a>
+    <a href="#" class="disabled"><span class="icon">⚙️</span>Settings</a>
+  </nav>
 </body>
 </html>

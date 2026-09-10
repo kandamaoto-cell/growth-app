@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="has-bottom-nav">
+
+  <header class="page-header">
+    <p class="date" id="greetingDate">おはようございます</p>
+    <p class="sub" id="greetingSub"></p>
+  </header>
+
+  <!-- 今日のフォーカス -->
+  <div class="focus-card" id="focusCard">
+    <p class="focus-label">🎯 今日のフォーカス</p>
+    <p class="focus-text" id="focusText">読み込み中...</p>
+  </div>
+
+  <!-- 重要Problem -->
+  <section class="section">
+    <p class="section-label">🔴 重要なProblem</p>
+    <div id="importantProblemArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 今日のTry -->
+  <section class="section">
+    <p class="section-label">🔄 今日のTry</p>
+    <div id="todayTryArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 繰り返しているProblem -->
+  <section class="section">
+    <p class="section-label">⚠️ 繰り返しているProblem</p>
+    <div id="repeatingProblemArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 最近改善したこと -->
+  <section class="section">
+    <p class="section-label">📈 最近改善したこと</p>
+    <div id="improvedArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 今日のAI分析 -->
+  <section class="section">
+    <p class="section-label">🤖 今日のAI分析</p>
+    <div id="aiAnalysisArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 下部ナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="active"><span class="icon">🏠</span>Home</a>
+    <a href="index.html"><span class="icon">📝</span>Record</a>
+    <a href="#" class="disabled"><span class="icon">🔴</span>Problem</a>
+    <a href="#" class="disabled"><span class="icon">📈</span>Growth</a>
+    <a href="#" class="disabled"><span class="icon">⚙️</span>Settings</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
