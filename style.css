@@ -381,3 +381,140 @@ body.has-bottom-nav {
   font-family: var(--font-serif);
   margin: 0 0 12px;
 }
+
+/* ============================================
+   Problem一覧: フィルタータブ
+   ============================================ */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-tab {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.filter-tab.active {
+  background: var(--moss);
+  color: #fff;
+  border-color: var(--moss);
+}
+
+/* ============================================
+   Problem一覧: リスト項目
+   ============================================ */
+.problem-list-item {
+  display: block;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+}
+
+.problem-list-item .top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.problem-list-item .meta-row {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  padding-left: 16px;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot.red { background: var(--rust); }
+.status-dot.orange { background: #C68A3B; }
+.status-dot.green { background: var(--moss); }
+.status-dot.gray { background: var(--ink-soft); }
+
+/* ============================================
+   Problem詳細
+   ============================================ */
+.detail-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.detail-stat-row:last-child { border-bottom: none; }
+
+.big-number {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 70px;
+  margin-top: 14px;
+}
+
+.bar-chart .bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bar-chart .bar {
+  width: 100%;
+  background: var(--rust);
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+}
+
+.bar-chart .bar-label {
+  font-size: 9px;
+  color: var(--ink-soft);
+}
+
+.related-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.related-item:last-child { border-bottom: none; }
+
+.related-item .date-tag {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-right: 6px;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 20px 20px 0;
+  color: var(--moss);
+  text-decoration: none;
+  font-size: 14px;
+}

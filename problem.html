@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="has-bottom-nav">
+
+  <header class="page-header">
+    <p class="date">Problem</p>
+  </header>
+
+  <div class="filter-tabs" id="filterTabs">
+    <button class="filter-tab active" data-filter="all">すべて</button>
+    <button class="filter-tab" data-filter="important">重要</button>
+    <button class="filter-tab" data-filter="improving">改善中</button>
+    <button class="filter-tab" data-filter="overcome">克服</button>
+    <button class="filter-tab" data-filter="relapse">再発</button>
+  </div>
+
+  <div id="problemListArea">
+    <p class="empty-note" style="padding:20px;">読み込み中...</p>
+  </div>
+
+  <!-- 下部ナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="home.html"><span class="icon">🏠</span>Home</a>
+    <a href="index.html"><span class="icon">📝</span>Record</a>
+    <a href="problem.html" class="active"><span class="icon">🔴</span>Problem</a>
+    <a href="#" class="disabled"><span class="icon">📈</span>Growth</a>
+    <a href="#" class="disabled"><span class="icon">⚙️</span>Settings</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="problem.js"></script>
+</body>
+</html>

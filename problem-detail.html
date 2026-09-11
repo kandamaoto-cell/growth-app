@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problem詳細</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="has-bottom-nav">
+
+  <a href="problem.html" class="back-link">← Problem一覧</a>
+
+  <header class="page-header" style="border-bottom:none;">
+    <p class="date" id="themeName">読み込み中...</p>
+  </header>
+
+  <section class="section" style="padding-top:0;">
+    <div class="detail-stat-row">
+      <span>重要度</span>
+      <span id="themeImportance">-</span>
+    </div>
+    <div class="detail-stat-row">
+      <span>状態</span>
+      <span id="themeStatus">-</span>
+    </div>
+    <div class="detail-stat-row">
+      <span>カテゴリー</span>
+      <span id="themeCategory">-</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">発生回数</p>
+    <p class="big-number" id="occurrenceCount">0回</p>
+    <div class="detail-stat-row">
+      <span>初回発生</span>
+      <span id="firstOccurrence">-</span>
+    </div>
+    <div class="detail-stat-row">
+      <span>最終発生</span>
+      <span id="lastOccurrence">-</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">📊 発生推移（週ごと）</p>
+    <div class="bar-chart" id="barChart"></div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">💬 関連FB</p>
+    <div id="relatedFbArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">🔄 関連Try</p>
+    <div id="relatedTryArea">
+      <p class="empty-note">読み込み中...</p>
+    </div>
+  </section>
+
+  <!-- 下部ナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="home.html"><span class="icon">🏠</span>Home</a>
+    <a href="index.html"><span class="icon">📝</span>Record</a>
+    <a href="problem.html" class="active"><span class="icon">🔴</span>Problem</a>
+    <a href="#" class="disabled"><span class="icon">📈</span>Growth</a>
+    <a href="#" class="disabled"><span class="icon">⚙️</span>Settings</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="problem-detail.js"></script>
+</body>
+</html>
